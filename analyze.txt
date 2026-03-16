@@ -1,0 +1,9 @@
+Analyzing pixelo...                                             
+
+warning - The value of the local variable 'isDark' isn't used - lib\screens\home_screen.dart:42:11 - unused_local_variable
+warning - The member 'state' can only be used within 'package:riverpod/src/framework.dart' or a test - lib\screens\home_screen.dart:107:82 - invalid_use_of_visible_for_testing_member
+warning - The member 'state' can only be used within instance members of subclasses of '$AsyncClassModifier' - lib\screens\home_screen.dart:107:82 - invalid_use_of_protected_member
+warning - Unused import: 'package:flutter/gestures.dart' - lib\widgets\post_card.dart:2:8 - unused_import
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\post_card.dart:136:51 - deprecated_member_use
+
+5 issues found. (ran in 3.8s)

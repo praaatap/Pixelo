@@ -1,0 +1,74 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build and Analyze
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.10.7' # Matching sdk version from pubspec
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Check formatting
+        run: flutter format --set-exit-if-changed lib/
+
+      - name: Analyze code
+        run: flutter analyze
+
+      - name: Build Android APK
+        run: flutter build apk --release --build-number=${{ github.run_number }}
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+  release:
+    name: Create Release
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download APK from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: release-apk
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: app-release.apk
+          tag_name: v1.0.0+${{ github.run_number }}
+          name: Release v1.0.0+${{ github.run_number }}
+          body: |
+            Automated release from GitHub Actions.
+            Build Number: ${{ github.run_number }}
+            Event: ${{ github.event_name }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
